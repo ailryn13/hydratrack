@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -25,6 +26,9 @@
                 <h1>HydraTrack</h1>
             </div>
             <div class="header-right">
+                <div class="auth-status" id="authStatus">
+                    <button class="auth-btn" id="authBtn" title="Sign In">👤 Sign In</button>
+                </div>
                 <div class="streak-badge" id="streakBadge" title="Current Streak">
                     <span class="streak-flame">🔥</span>
                     <span class="streak-count" id="streakCount">0</span>
@@ -433,6 +437,67 @@
                 </div>
                 <button class="reminder-quick-add" id="reminderQuickAdd">+250ml</button>
                 <button class="reminder-dismiss" id="reminderDismiss">×</button>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div class="modal hidden" id="authModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="authModalTitle">🔐 Sign In</h3>
+                    <button class="close-btn" id="closeAuth">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" id="tabSignIn" data-tab="signin">Sign In</button>
+                        <button class="auth-tab" id="tabSignUp" data-tab="signup">Sign Up</button>
+                    </div>
+
+                    <!-- Sign In Form -->
+                    <div class="auth-form" id="signInForm">
+                        <div class="form-group">
+                            <label class="form-label" for="signInEmail">📧 Email</label>
+                            <input type="email" id="signInEmail" class="form-control" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="signInPassword">🔑 Password</label>
+                            <input type="password" id="signInPassword" class="form-control" placeholder="Your password">
+                        </div>
+                        <div class="auth-error hidden" id="signInError"></div>
+                        <button class="btn btn-primary btn-full" id="signInBtn">🚀 Sign In</button>
+                    </div>
+
+                    <!-- Sign Up Form -->
+                    <div class="auth-form hidden" id="signUpForm">
+                        <div class="form-group">
+                            <label class="form-label" for="signUpEmail">📧 Email</label>
+                            <input type="email" id="signUpEmail" class="form-control" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="signUpPassword">🔑 Password</label>
+                            <input type="password" id="signUpPassword" class="form-control" placeholder="Min 8 chars, include number">
+                        </div>
+                        <div class="auth-error hidden" id="signUpError"></div>
+                        <button class="btn btn-primary btn-full" id="signUpBtn">✨ Create Account</button>
+                    </div>
+
+                    <!-- Confirm Code Form -->
+                    <div class="auth-form hidden" id="confirmForm">
+                        <p class="auth-info">📬 We sent a verification code to your email</p>
+                        <div class="form-group">
+                            <label class="form-label" for="confirmCode">🔢 Verification Code</label>
+                            <input type="text" id="confirmCode" class="form-control" placeholder="Enter 6-digit code">
+                        </div>
+                        <div class="auth-error hidden" id="confirmError"></div>
+                        <button class="btn btn-primary btn-full" id="confirmBtn">✅ Verify & Sign In</button>
+                    </div>
+
+                    <div class="auth-sync-info">
+                        <span class="sync-icon">☁️</span>
+                        <span>Your data syncs across all devices when signed in</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

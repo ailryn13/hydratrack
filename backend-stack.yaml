@@ -1,0 +1,346 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: HydraTrack Backend - Cognito, DynamoDB, Lambda, API Gateway
+
+Resources:
+  # ============ Cognito ============
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: HydraTrackUserPool
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: false
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: HydraTrackWebClient
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+
+  # ============ DynamoDB ============
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: HydraTrackUsers
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+
+  # ============ Lambda ============
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: HydraTrackLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt UsersTable.Arn
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HydraTrackAPI
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UsersTable
+          USER_POOL_ID: !Ref UserPool
+          CLIENT_ID: !Ref UserPoolClient
+          REGION: !Ref 'AWS::Region'
+      Code:
+        ZipFile: |
+          const { DynamoDBClient, GetItemCommand, PutItemCommand, DeleteItemCommand } = require('@aws-sdk/client-dynamodb');
+          const https = require('https');
+          const crypto = require('crypto');
+
+          const client = new DynamoDBClient({});
+          const TABLE = process.env.TABLE_NAME;
+          const USER_POOL_ID = process.env.USER_POOL_ID;
+          const REGION = process.env.REGION;
+
+          let cachedKeys = null;
+
+          function getJWKS() {
+            if (cachedKeys) return Promise.resolve(cachedKeys);
+            const url = `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json`;
+            return new Promise((resolve, reject) => {
+              https.get(url, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                  cachedKeys = JSON.parse(data);
+                  resolve(cachedKeys);
+                });
+              }).on('error', reject);
+            });
+          }
+
+          function base64UrlDecode(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            return Buffer.from(str, 'base64');
+          }
+
+          function rsaPublicKeyFromJWK(jwk) {
+            const e = base64UrlDecode(jwk.e);
+            const n = base64UrlDecode(jwk.n);
+            const eHex = e.toString('hex');
+            const nHex = n.toString('hex');
+            const eLenHex = eHex.length / 2;
+            const nLenHex = nHex.length / 2;
+
+            function encodeLengthHex(len) {
+              if (len <= 127) return len.toString(16).padStart(2, '0');
+              const hexLen = len.toString(16);
+              const byteCount = Math.ceil(hexLen.length / 2);
+              return (0x80 | byteCount).toString(16) + hexLen.padStart(byteCount * 2, '0');
+            }
+
+            function derInteger(hex) {
+              let h = hex;
+              if (parseInt(h.substring(0, 2), 16) > 127) h = '00' + h;
+              return '02' + encodeLengthHex(h.length / 2) + h;
+            }
+
+            const seq = derInteger(nHex) + derInteger(eHex);
+            const bitstring = '00' + '30' + encodeLengthHex(seq.length / 2) + seq;
+            const bitstringDer = '03' + encodeLengthHex(bitstring.length / 2) + bitstring;
+            const oid = '300d06092a864886f70d0101010500';
+            const total = oid + bitstringDer;
+            const der = '30' + encodeLengthHex(total.length / 2) + total;
+
+            const pem = '-----BEGIN PUBLIC KEY-----\n' +
+              Buffer.from(der, 'hex').toString('base64').match(/.{1,64}/g).join('\n') +
+              '\n-----END PUBLIC KEY-----';
+            return pem;
+          }
+
+          async function verifyToken(token) {
+            try {
+              const parts = token.replace('Bearer ', '').split('.');
+              if (parts.length !== 3) return null;
+
+              const header = JSON.parse(base64UrlDecode(parts[0]).toString());
+              const payload = JSON.parse(base64UrlDecode(parts[1]).toString());
+
+              // Check expiration
+              if (payload.exp && Date.now() / 1000 > payload.exp) return null;
+              // Check issuer
+              const expectedIssuer = `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`;
+              if (payload.iss !== expectedIssuer) return null;
+
+              // Verify signature
+              const jwks = await getJWKS();
+              const key = jwks.keys.find(k => k.kid === header.kid);
+              if (!key) return null;
+
+              const pem = rsaPublicKeyFromJWK(key);
+              const verify = crypto.createVerify('RSA-SHA256');
+              verify.update(parts[0] + '.' + parts[1]);
+              const signatureValid = verify.verify(pem, base64UrlDecode(parts[2]));
+
+              if (!signatureValid) return null;
+              return payload;
+            } catch (err) {
+              console.error('Token verification failed:', err);
+              return null;
+            }
+          }
+
+          exports.handler = async (event) => {
+            const headers = {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+              'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+            };
+
+            try {
+              const method = event.requestContext?.http?.method || event.httpMethod;
+
+              if (method === 'OPTIONS') {
+                return { statusCode: 200, headers, body: '' };
+              }
+
+              // Verify JWT
+              const authHeader = event.headers?.authorization || event.headers?.Authorization || '';
+              const claims = await verifyToken(authHeader);
+              if (!claims || !claims.sub) {
+                return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
+              }
+              const userId = claims.sub;
+
+              if (method === 'GET') {
+                const result = await client.send(new GetItemCommand({
+                  TableName: TABLE,
+                  Key: { userId: { S: userId } }
+                }));
+
+                if (!result.Item) {
+                  return { statusCode: 404, headers, body: JSON.stringify({ error: 'No data found' }) };
+                }
+
+                const state = JSON.parse(result.Item.state.S);
+                return { statusCode: 200, headers, body: JSON.stringify(state) };
+              }
+
+              if (method === 'PUT') {
+                const body = JSON.parse(event.body);
+
+                await client.send(new PutItemCommand({
+                  TableName: TABLE,
+                  Item: {
+                    userId: { S: userId },
+                    state: { S: JSON.stringify(body) },
+                    updatedAt: { S: new Date().toISOString() }
+                  }
+                }));
+
+                return { statusCode: 200, headers, body: JSON.stringify({ message: 'Saved' }) };
+              }
+
+              if (method === 'DELETE') {
+                await client.send(new DeleteItemCommand({
+                  TableName: TABLE,
+                  Key: { userId: { S: userId } }
+                }));
+
+                return { statusCode: 200, headers, body: JSON.stringify({ message: 'Deleted' }) };
+              }
+
+              return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+            } catch (err) {
+              console.error('Error:', err);
+              return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal server error' }) };
+            }
+          };
+
+  # ============ API Gateway (HTTP API) ============
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: HydraTrackAPI
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+
+  LambdaIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt ApiFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  StateGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /state'
+      Target: !Sub 'integrations/${LambdaIntegration}'
+
+  StatePutRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PUT /state'
+      Target: !Sub 'integrations/${LambdaIntegration}'
+
+  StateDeleteRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'DELETE /state'
+      Target: !Sub 'integrations/${LambdaIntegration}'
+
+  ApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: '$default'
+      AutoDeploy: true
+
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*'
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+
+  Region:
+    Description: AWS Region
+    Value: !Ref 'AWS::Region'
