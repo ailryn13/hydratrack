@@ -43,7 +43,7 @@
     --bg-secondary: rgba(255, 255, 255, 0.95);
     --bg-card: rgba(255, 255, 255, 0.9);
     --bg-glass: rgba(255, 255, 255, 0.25);
-    
+
     --text-primary: #1a1a2e;
     --text-secondary: #4a4a68;
     --text-muted: #8888a0;
@@ -106,7 +106,9 @@
 }
 
 /* Base Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -176,10 +178,13 @@ body {
 }
 
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0) rotate(0deg);
         opacity: 0.1;
     }
+
     50% {
         transform: translateY(-30px) rotate(180deg);
         opacity: 0.15;
@@ -213,8 +218,15 @@ body {
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
 }
 
 .app-header h1 {
@@ -247,8 +259,13 @@ body {
 }
 
 @keyframes flicker {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
 }
 
 .streak-count {
@@ -349,8 +366,13 @@ body {
 }
 
 @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .xp-text {
@@ -403,7 +425,7 @@ body {
     background: linear-gradient(180deg, #4dc1ff 0%, #0088e0 100%);
     border-radius: 40% 40% 50% 50%;
     position: relative;
-    box-shadow: 
+    box-shadow:
         var(--shadow-lg),
         inset 0 -10px 20px rgba(0, 0, 0, 0.1),
         inset 0 10px 20px rgba(255, 255, 255, 0.3);
@@ -411,8 +433,15 @@ body {
 }
 
 @keyframes mascotBob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 .mascot-face {
@@ -452,8 +481,16 @@ body {
 }
 
 @keyframes blink {
-    0%, 95%, 100% { transform: scaleY(1); }
-    97% { transform: scaleY(0.1); }
+
+    0%,
+    95%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    97% {
+        transform: scaleY(0.1);
+    }
 }
 
 .mascot-mouth {
@@ -491,8 +528,17 @@ body {
 }
 
 @keyframes shadowPulse {
-    0%, 100% { transform: scale(1); opacity: 0.2; }
-    50% { transform: scale(0.8); opacity: 0.15; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+
+    50% {
+        transform: scale(0.8);
+        opacity: 0.15;
+    }
 }
 
 .mascot-message {
@@ -589,8 +635,15 @@ body {
 }
 
 @keyframes dropBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
 }
 
 .progress-amount {
@@ -664,8 +717,15 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
 }
 
 .challenge-content {
@@ -981,8 +1041,13 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .modal-overlay {
@@ -1012,11 +1077,12 @@ body {
 }
 
 @keyframes slideUp {
-    from { 
+    from {
         opacity: 0;
         transform: translateY(20px);
     }
-    to { 
+
+    to {
         opacity: 1;
         transform: translateY(0);
     }
@@ -1175,11 +1241,11 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.toggle input:checked + .toggle-slider {
+.toggle input:checked+.toggle-slider {
     background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
 }
 
-.toggle input:checked + .toggle-slider::before {
+.toggle input:checked+.toggle-slider::before {
     transform: translateX(24px);
 }
 
@@ -1235,8 +1301,15 @@ body {
 }
 
 @keyframes glowPulse {
-    0%, 100% { box-shadow: var(--shadow-glow); }
-    50% { box-shadow: var(--shadow-glow-strong); }
+
+    0%,
+    100% {
+        box-shadow: var(--shadow-glow);
+    }
+
+    50% {
+        box-shadow: var(--shadow-glow-strong);
+    }
 }
 
 /* Achievements */
@@ -1724,8 +1797,17 @@ body {
 }
 
 @keyframes glowExpand {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.3; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
 }
 
 .achievement-popup-content {
@@ -1736,11 +1818,12 @@ body {
 }
 
 @keyframes popIn {
-    0% { 
+    0% {
         opacity: 0;
         transform: scale(0.5);
     }
-    100% { 
+
+    100% {
         opacity: 1;
         transform: scale(1);
     }
@@ -1753,8 +1836,15 @@ body {
 }
 
 @keyframes twinkle {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .achievement-badge-icon {
@@ -1765,9 +1855,19 @@ body {
 }
 
 @keyframes achievementBounce {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-10px) rotate(-5deg); }
-    75% { transform: translateY(-10px) rotate(5deg); }
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-10px) rotate(-5deg);
+    }
+
+    75% {
+        transform: translateY(-10px) rotate(5deg);
+    }
 }
 
 .achievement-popup-content h3 {
@@ -1805,20 +1905,23 @@ body {
     position: absolute;
     width: 400px;
     height: 400px;
-    background: conic-gradient(
-        from 0deg,
-        transparent,
-        rgba(255, 204, 0, 0.3),
-        transparent,
-        rgba(255, 204, 0, 0.3),
-        transparent
-    );
+    background: conic-gradient(from 0deg,
+            transparent,
+            rgba(255, 204, 0, 0.3),
+            transparent,
+            rgba(255, 204, 0, 0.3),
+            transparent);
     animation: rotateRays 10s linear infinite;
 }
 
 @keyframes rotateRays {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .levelup-content {
@@ -1836,8 +1939,15 @@ body {
 }
 
 @keyframes levelUpFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
 }
 
 .levelup-content h2 {
@@ -1919,6 +2029,7 @@ body {
         transform: translateY(-100px) rotate(0deg);
         opacity: 1;
     }
+
     100% {
         transform: translateY(100vh) rotate(720deg);
         opacity: 0;
@@ -1940,8 +2051,15 @@ body {
 }
 
 @keyframes trophyBounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.1); }
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-20px) scale(1.1);
+    }
 }
 
 .celebration-content h2 {
@@ -1995,6 +2113,7 @@ body {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+
     100% {
         opacity: 0;
         transform: translateY(-60px) scale(1.2);
@@ -2031,6 +2150,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2042,6 +2162,7 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+
     to {
         opacity: 0;
         transform: translateY(-20px);
@@ -2083,6 +2204,7 @@ body {
         opacity: 0;
         transform: translateX(-50%) translateY(-100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
@@ -2155,6 +2277,45 @@ body {
 .auth-status {
     display: flex;
     align-items: center;
+}
+
+/* Auth Form Controls */
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: var(--font-size-md);
+    font-family: var(--font-family);
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--gray-100);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: var(--transition-normal);
+    box-sizing: border-box;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.form-control:focus {
+    border-color: var(--primary-400);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 160, 255, 0.15);
 }
 
 .auth-btn {
@@ -2278,8 +2439,15 @@ body {
 }
 
 @keyframes syncPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 
 /* Hidden utility */
@@ -2292,61 +2460,61 @@ body {
     .app-header h1 {
         font-size: var(--font-size-lg);
     }
-    
+
     .level-bar {
         flex-direction: column;
         gap: var(--space-sm);
     }
-    
+
     .xp-container {
         max-width: 100%;
         width: 100%;
     }
-    
+
     .main-content {
         padding: var(--space-md);
         gap: var(--space-md);
     }
-    
+
     .mascot-body {
         width: 60px;
         height: 75px;
     }
-    
+
     .progress-circle {
         width: 180px;
         height: 180px;
     }
-    
+
     .progress-amount {
         font-size: var(--font-size-3xl);
     }
-    
+
     .quick-actions {
         gap: var(--space-sm);
     }
-    
+
     .action-btn {
         padding: var(--space-sm);
     }
-    
+
     .btn-icon {
         font-size: 1.5rem;
     }
-    
+
     .btn-amount {
         font-size: var(--font-size-md);
     }
-    
+
     .achievements-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-sm);
     }
-    
+
     .achievement-card {
         padding: var(--space-sm);
     }
-    
+
     .achievement-card-icon {
         font-size: 1.5rem;
     }
@@ -2363,12 +2531,12 @@ body {
         margin-bottom: var(--space-lg);
         min-height: calc(100vh - 48px);
     }
-    
+
     .bottom-nav {
         position: sticky;
         border-radius: 0 0 var(--radius-xl) var(--radius-xl);
     }
-    
+
     .quick-actions {
         grid-template-columns: repeat(4, 1fr);
         max-width: 450px;
@@ -2380,7 +2548,7 @@ body {
     .app-container {
         background: white;
     }
-    
+
     .bottom-nav,
     .modal,
     .celebration,
@@ -2392,6 +2560,7 @@ body {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
