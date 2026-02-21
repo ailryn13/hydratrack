@@ -2298,24 +2298,28 @@ body {
     font-size: var(--font-size-md);
     font-family: var(--font-family);
     font-weight: 600;
-    color: var(--text-primary);
-    background: var(--gray-100);
-    border: 2px solid var(--gray-300);
+    color: #1a1a2e;
+    background-color: #ffffff;
+    border: 2px solid #e0e0e0;
     border-radius: var(--radius-md);
     outline: none;
     transition: var(--transition-normal);
     box-sizing: border-box;
+    -webkit-text-fill-color: #1a1a2e;
 }
 
 .form-control::placeholder {
-    color: var(--text-muted);
+    color: #8888a0;
+    -webkit-text-fill-color: #8888a0;
     font-weight: 400;
 }
 
 .form-control:focus {
     border-color: var(--primary-400);
-    background: white;
+    background-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(0, 160, 255, 0.15);
+    color: #1a1a2e;
+    -webkit-text-fill-color: #1a1a2e;
 }
 
 .auth-btn {
