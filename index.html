@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HydraTrack - Gamified Water Reminder</title>
+    <meta name="description" content="Stay hydrated with gamified water tracking! Earn XP, unlock achievements, and build streaks.">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-bubbles" id="bgBubbles"></div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="mascot-mini" id="mascotMini">💧</div>
+                <h1>HydraTrack</h1>
+            </div>
+            <div class="header-right">
+                <div class="streak-badge" id="streakBadge" title="Current Streak">
+                    <span class="streak-flame">🔥</span>
+                    <span class="streak-count" id="streakCount">0</span>
+                </div>
+                <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Level & XP Bar -->
+        <div class="level-bar">
+            <div class="level-info">
+                <span class="level-badge" id="levelBadge">Lv. 1</span>
+                <span class="level-title" id="levelTitle">Hydration Rookie</span>
+            </div>
+            <div class="xp-container">
+                <div class="xp-bar">
+                    <div class="xp-fill" id="xpFill"></div>
+                    <div class="xp-glow"></div>
+                </div>
+                <span class="xp-text" id="xpText">0 / 100 XP</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Mascot Section -->
+            <div class="mascot-section">
+                <div class="mascot" id="mascot">
+                    <div class="mascot-body">
+                        <div class="mascot-face">
+                            <div class="mascot-eyes">
+                                <div class="eye left"></div>
+                                <div class="eye right"></div>
+                            </div>
+                            <div class="mascot-mouth happy"></div>
+                        </div>
+                        <div class="mascot-shine"></div>
+                    </div>
+                    <div class="mascot-shadow"></div>
+                </div>
+                <div class="mascot-message" id="mascotMessage">
+                    <p id="mascotText">Let's stay hydrated today! 💪</p>
+                </div>
+            </div>
+
+            <!-- Progress Circle -->
+            <div class="progress-circle-container">
+                <div class="progress-circle">
+                    <svg class="progress-ring" viewBox="0 0 220 220">
+                        <defs>
+                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff" />
+                                <stop offset="50%" style="stop-color:#0099ff" />
+                                <stop offset="100%" style="stop-color:#0066cc" />
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <circle class="progress-ring-bg" cx="110" cy="110" r="95" />
+                        <circle class="progress-ring-fill" id="progressRing" cx="110" cy="110" r="95" />
+                    </svg>
+                    <div class="progress-inner">
+                        <div class="water-drops">
+                            <span class="drop d1">💧</span>
+                            <span class="drop d2">💧</span>
+                            <span class="drop d3">💧</span>
+                        </div>
+                        <span class="progress-amount" id="currentIntake">0</span>
+                        <span class="progress-unit">ml</span>
+                        <span class="progress-goal">of <span id="dailyGoal">2000</span>ml</span>
+                        <span class="progress-percentage" id="progressPercentage">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Challenge -->
+            <div class="daily-challenge" id="dailyChallenge">
+                <div class="challenge-header">
+                    <span class="challenge-icon">🎯</span>
+                    <span class="challenge-title">Daily Challenge</span>
+                    <span class="challenge-new">NEW</span>
+                </div>
+                <div class="challenge-content">
+                    <p class="challenge-text" id="challengeText">Drink 8 glasses of water today!</p>
+                    <div class="challenge-progress">
+                        <div class="challenge-bar">
+                            <div class="challenge-fill" id="challengeFill"></div>
+                        </div>
+                        <span class="challenge-status" id="challengeStatus">0/8</span>
+                    </div>
+                    <div class="challenge-reward">
+                        <span class="reward-icon">⭐</span>
+                        <span>+50 XP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="action-btn" data-amount="250">
+                    <div class="btn-ripple"></div>
+                    <span class="btn-icon">🥛</span>
+                    <span class="btn-amount">250ml</span>
+                    <span class="btn-xp">+10 XP</span>
+                </button>
+                <button class="action-btn" data-amount="500">
+                    <div class="btn-ripple"></div>
+                    <span class="btn-icon">🍶</span>
+                    <span class="btn-amount">500ml</span>
+                    <span class="btn-xp">+20 XP</span>
+                </button>
+                <button class="action-btn" data-amount="750">
+                    <div class="btn-ripple"></div>
+                    <span class="btn-icon">🫗</span>
+                    <span class="btn-amount">750ml</span>
+                    <span class="btn-xp">+30 XP</span>
+                </button>
+                <button class="action-btn" data-amount="1000">
+                    <div class="btn-ripple"></div>
+                    <span class="btn-icon">🧴</span>
+                    <span class="btn-amount">1L</span>
+                    <span class="btn-xp">+40 XP</span>
+                </button>
+            </div>
+
+            <!-- Custom Input -->
+            <div class="custom-input-section">
+                <div class="custom-input">
+                    <input type="number" id="customAmount" placeholder="Custom amount" min="1" max="2000">
+                    <span class="input-unit">ml</span>
+                </div>
+                <button class="btn-add" id="addCustomBtn">
+                    <span class="add-icon">+</span>
+                    <span>Add</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-view="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-btn" data-view="achievements">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-label">Badges</span>
+                <span class="badge-dot hidden" id="newBadgeDot"></span>
+            </button>
+            <button class="nav-btn" data-view="history">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Stats</span>
+            </button>
+            <button class="nav-btn" data-view="reminder">
+                <span class="nav-icon">⏰</span>
+                <span class="nav-label">Remind</span>
+                <span class="reminder-active hidden" id="reminderActive"></span>
+            </button>
+        </nav>
+
+        <!-- Settings Modal -->
+        <div class="modal hidden" id="settingsModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ Settings</h3>
+                    <button class="close-btn" id="closeSettings">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="goalInput">💧 Daily Goal</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goalInput" class="form-control" min="500" max="5000" step="100" value="2000">
+                            <span class="unit">ml</span>
+                        </div>
+                        <p class="form-hint">Recommended: 2000-3000ml per day</p>
+                    </div>
+                    
+                    <div class="settings-divider"></div>
+                    
+                    <div class="form-group toggle-group">
+                        <div class="toggle-info">
+                            <label class="form-label">🔊 Sound Effects</label>
+                            <p class="form-hint">Play sounds when adding water</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="soundToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group toggle-group">
+                        <div class="toggle-info">
+                            <label class="form-label">🔔 Notifications</label>
+                            <p class="form-hint">Get reminders to drink water</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="notificationToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-divider"></div>
+                    
+                    <button class="btn btn-primary btn-full" id="saveSettings">💾 Save Settings</button>
+                    <button class="btn btn-danger btn-full" id="resetProgress">🗑️ Reset All Progress</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Modal -->
+        <div class="modal hidden" id="achievementsModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3>🏆 Achievements</h3>
+                    <button class="close-btn" id="closeAchievements">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="achievements-summary">
+                        <span class="achievements-count" id="achievementsCount">0/15</span>
+                        <span class="achievements-label">Unlocked</span>
+                    </div>
+                    <div class="achievements-grid" id="achievementsGrid">
+                        <!-- Achievements will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div class="modal hidden" id="historyModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3>📊 Statistics</h3>
+                    <button class="close-btn" id="closeHistory">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-icon">📅</span>
+                            <span class="stat-value" id="totalDays">0</span>
+                            <span class="stat-label">Days Active</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">💧</span>
+                            <span class="stat-value" id="totalWater">0L</span>
+                            <span class="stat-label">Total Water</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">🔥</span>
+                            <span class="stat-value" id="bestStreak">0</span>
+                            <span class="stat-label">Best Streak</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">⭐</span>
+                            <span class="stat-value" id="perfectDays">0</span>
+                            <span class="stat-label">Perfect Days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h4>📈 Last 7 Days</h4>
+                        <div class="weekly-chart" id="weeklyChart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    
+                    <div class="history-section">
+                        <h4>📜 Recent Activity</h4>
+                        <div class="history-list" id="historyList">
+                            <!-- History items will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminder Modal -->
+        <div class="modal hidden" id="reminderModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⏰ Water Reminders</h3>
+                    <button class="close-btn" id="closeReminder">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="reminder-status" id="reminderStatus">
+                        <div class="status-icon-wrapper off">
+                            <span class="status-icon">🔕</span>
+                        </div>
+                        <span class="status-text">Reminders are off</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">⏱️ Remind me every</label>
+                        <select id="reminderInterval" class="form-control">
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>1 hour</option>
+                            <option value="90">1.5 hours</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">🕐 Active hours</label>
+                        <div class="time-range">
+                            <input type="time" id="startTime" class="form-control" value="08:00">
+                            <span class="time-separator">to</span>
+                            <input type="time" id="endTime" class="form-control" value="22:00">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-full" id="toggleReminders">
+                        <span id="reminderBtnIcon">🔔</span>
+                        <span id="reminderBtnText">Enable Reminders</span>
+                    </button>
+                    
+                    <div class="hydration-tips">
+                        <h4>💡 Hydration Tips</h4>
+                        <ul>
+                            <li>🌅 Start your day with a glass of water</li>
+                            <li>⚡ Drink before you feel thirsty</li>
+                            <li>🖥️ Keep a water bottle at your desk</li>
+                            <li>🍽️ Have a glass before each meal</li>
+                            <li>🏃 Drink extra when exercising</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Unlocked Popup -->
+        <div class="achievement-popup hidden" id="achievementPopup">
+            <div class="popup-glow"></div>
+            <div class="achievement-popup-content">
+                <div class="achievement-stars">✨</div>
+                <span class="achievement-badge-icon" id="achievementIcon">🏆</span>
+                <h3>Achievement Unlocked!</h3>
+                <p class="achievement-name" id="achievementName">First Drop</p>
+                <p class="achievement-desc" id="achievementDesc">Drink your first glass of water</p>
+                <div class="achievement-xp-reward">
+                    <span class="xp-icon">⭐</span>
+                    <span id="achievementXP">+25 XP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Up Popup -->
+        <div class="levelup-popup hidden" id="levelupPopup">
+            <div class="levelup-rays"></div>
+            <div class="levelup-content">
+                <span class="levelup-icon">⬆️</span>
+                <h2>LEVEL UP!</h2>
+                <div class="level-change">
+                    <span class="old-level" id="oldLevel">Lv. 1</span>
+                    <span class="arrow">→</span>
+                    <span class="new-level" id="newLevel">Lv. 2</span>
+                </div>
+                <p class="new-title" id="newTitle">Hydration Apprentice</p>
+            </div>
+        </div>
+
+        <!-- Goal Achieved Celebration -->
+        <div class="celebration hidden" id="celebration">
+            <div class="confetti-container" id="confetti"></div>
+            <div class="celebration-content">
+                <div class="celebration-trophy">🏆</div>
+                <h2>🎉 Daily Goal Achieved!</h2>
+                <p>Amazing work! You've completed your hydration goal for today.</p>
+                <div class="celebration-rewards">
+                    <div class="reward-item">
+                        <span class="reward-icon">⭐</span>
+                        <span>+100 XP Bonus</span>
+                    </div>
+                    <div class="reward-item">
+                        <span class="reward-icon">🔥</span>
+                        <span>Streak Extended!</span>
+                    </div>
+                </div>
+                <button class="btn btn-glow" id="closeCelebration">Awesome! 💪</button>
+            </div>
+        </div>
+
+        <!-- Floating XP Indicator -->
+        <div class="xp-float hidden" id="xpFloat">+10 XP</div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Reminder Notification (in-app) -->
+        <div class="reminder-notification hidden" id="reminderNotification">
+            <div class="reminder-notification-content">
+                <span class="reminder-emoji">💧</span>
+                <div class="reminder-text">
+                    <strong>Time to hydrate!</strong>
+                    <p>Don't forget to drink some water</p>
+                </div>
+                <button class="reminder-quick-add" id="reminderQuickAdd">+250ml</button>
+                <button class="reminder-dismiss" id="reminderDismiss">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

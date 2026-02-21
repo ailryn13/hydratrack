@@ -1,0 +1,21 @@
+{
+    "name": "HydraTrack - Water Reminder",
+    "short_name": "HydraTrack",
+    "description": "A gamified water tracking app to help you stay hydrated",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#667eea",
+    "theme_color": "#00d4ff",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["health", "fitness", "lifestyle"],
+    "lang": "en",
+    "prefer_related_applications": false
+}
